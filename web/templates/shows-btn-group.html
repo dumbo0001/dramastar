@@ -1,0 +1,11 @@
+<div id="available-btn-group-{{show.id}}" class="btn-group">
+    {% if show.wanted %}
+    <a href="/show/{{show.id}}/unwant" 
+        class="btn ajax" data-method="post">
+        <i class="icon-bookmark"></i></a>
+    {% else %}
+    <a href="/show/{{show.id}}/want" 
+        class="btn ajax" data-method="post">
+        <i class="icon-bookmark-empty"></i></a>
+    {% endif %}
+</div>

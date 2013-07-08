@@ -1,0 +1,23 @@
+<tr>
+    <td>
+        <div class="btn-group">
+            <a href="/show/{{show.id}}" class="btn">
+                <i class="icon-pencil"></i></a>
+            <a href="/show/{{show.id}}/unwant" 
+                class="btn ajax" data-method="post">
+                <i class="icon-trash"></i></a>
+            <a href="/update/{{show.id}}" 
+                class="btn ajax" data-method="post" data-replace-closest="tr"
+                data-refresh="#episodes-list">
+                <i class="icon-refresh"></i></a>
+        </div>
+    </td>
+    <td>{{ show.name }}</td>
+    <td>
+        {% if show.episodes.count() > 0 %}
+        <small>{{ show.episodes.filter_by(status = 1).count() + show.episodes.filter_by(status = 2).count() }}/{{ show.episodes.count() }}
+        </small>
+        {% endif %}
+    </td>
+    <td><small>{% if show.status == 0 %}continuing{% else %}ended{% endif %}</small></td>
+</tr>

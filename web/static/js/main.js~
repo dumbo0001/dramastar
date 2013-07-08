@@ -1,0 +1,7 @@
+$(document).ready(function() {
+    $('#available-shows a.icon-refresh').bind('click', function(event) {
+        event.preventDefault();
+        console.log('clicked')
+        return false;
+    });
+});

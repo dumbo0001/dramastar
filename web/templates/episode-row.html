@@ -1,0 +1,19 @@
+<tr>
+    <td>
+        <div class="btn-group">
+            <a href="/episode/{{ episode.id }}/download" 
+                class="btn ajax" data-method="post" 
+                data-replace-closest="tr">
+                <i class="icon-download-alt"></i></a>
+        </div>
+    </td>
+    <td>{{ episode.show.name }}</td>
+    <td>{{ episode.number }} {{ episode.number_prefix }}</td>
+    <td>
+        <small>{% if episode.status == 0 %}wanted
+        {% elif episode.status == 1 %}ignored
+        {% else %}
+        downloaded
+        {% endif %}</small>
+    </td>
+</tr>

@@ -1,0 +1,45 @@
+<table id="episodes-list" class="table table-hover table-condensed" 
+    {% if episode_list.mode == 'all' %}
+    data-refresh-url="/show/{{episode_list.show_id}}/episodes"
+    {% else %}
+    data-refresh-url="/episodes/latest"
+    {% endif %}>
+    <thead>
+        <tr>
+            <th colspan="4">
+                {{episode_list.title}}
+                {% if episode_list.mode == 'all' %}
+                <a href="/update/{{episode_list.show_id}}"
+                    class="btn btn-small ajax" data-method="post" 
+                    data-refresh="#episodes-list">
+                    <i class="icon-refresh"></i></a>
+                {% endif %}
+            </th>
+        </tr>
+        {% if episode_list.episodes %}  
+        <tr>
+            <th class="span1">&nbsp;</th>
+            <th class="span3">Show</th>
+            <th class="span2">Episode</th>
+            <th class="span6">Status</th>
+        </tr>
+        {% endif %}
+    </thead>
+    <tbody>
+        {% if episode_list.episodes %}        
+        {% for episode in episode_list.episodes %}
+        {% include 'episode-row.html' %}
+        {% endfor %}
+        {% else %}
+        <tr>
+            <td colspan="4">
+                {% if episode_list.mode == 'latest' %}
+                <small>No latest episodes.</small>
+                {% else %}
+                <small>No episodes available. Click on <i class="icon-refresh"></i> to update the list.</small> 
+                {% endif %}                
+            </td>
+        </tr>
+        {% endif %}
+    </tbody>
+</table>
