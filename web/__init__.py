@@ -8,8 +8,7 @@ class DramastarServer:
     config = None
     
     def __init__(self):
-        static_dir = get_absolute_path('web/static')
-        
+        static_dir = get_absolute_path('web/static')        
         self.config = { 
             '/static': {
                 'tools.gzip.on': True, 
@@ -17,9 +16,7 @@ class DramastarServer:
                 'tools.staticdir.dir': static_dir
             },
             '/': {
-                'request.dispatch': self.setup_routes(),
-                # 'tools.staticdir.debug' : True,
-                # 'log.screen' : True
+                'request.dispatch': self.setup_routes()
             }
         }
         
@@ -28,14 +25,17 @@ class DramastarServer:
         cherrypy.config["tools.encode.encoding"] = "utf-8"
         cherrypy.config["tools.sessions.on"] = True
         
-        configfile = get_absolute_path('config.ini')
+        configfile = get_absolute_path('web.ini')
         cherrypy.config.update(configfile)
+        cherrypy.config.update(self.config)
         
         app = cherrypy.tree.mount(root = None, config = configfile)
         app.merge(self.config)
         cherrypy.engine.start()
-        #scheduler = Scheduler()
-        #scheduler.start()
+        
+        # Start snatch scheduler
+        scheduler = Scheduler()
+        scheduler.start()
 
     def setup_routes(self):
         root = Root()

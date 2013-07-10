@@ -3,10 +3,12 @@ from core.repositories.shows import ShowRepository
 from core.updater import Updater, UPDATE_ALL
 from core.downloaders import Downloader
 from core.entities.models import EPISODE_STATUS_WANTED
+from core.config import configmanager
 
 sched = ApScheduler()
 
-@sched.cron_schedule(hour = '15-16,17-19', minute='*/15')
+@sched.cron_schedule(hour = configmanager.get('scheduler', 'hour'), \
+    minute = configmanager.get('scheduler', 'minute'))
 def update_and_download():
     print "Updating..."
     updater = Updater()
@@ -26,4 +28,6 @@ def update_and_download():
 class Scheduler(object):
     def start(self):
         sched.start()
-        update_and_download()
+        
+        if configmanager.getboolean('scheduler', 'run_onstart'):
+            update_and_download()

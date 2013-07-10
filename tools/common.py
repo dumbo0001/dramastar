@@ -87,15 +87,3 @@ def getUserDir():
         pass
 
     return os.path.expanduser('~')
-
-def getDownloadDir():
-    user_dir = getUserDir()
-
-    # OSX
-    if 'darwin' in platform.platform().lower():
-        return os.path.join(user_dir, 'Downloads')
-
-    if os.name == 'nt':
-        return os.path.join(user_dir, 'Downloads')
-
-    return user_dir

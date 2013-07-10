@@ -19,7 +19,7 @@ def get_downloaders():
 
 def _load_downloaders():
     # TODO load downloader modules
-    loaded_downloaders = [ JDownloader(), BlackHole()]
+    loaded_downloaders = [ BlackHole(), JDownloader()]
     
     _sync_downloaders_in_db(loaded_downloaders)
     container.downloaders = loaded_downloaders
