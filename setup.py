@@ -8,7 +8,7 @@ if sys.platform == "win32":
     base = "Win32GUI"
     
 # Dependencies are automatically detected, but it might need fine tuning.
-includefiles = [ 'web\\templates', 'web\\static' ]
+includefiles = [ 'web\\templates', 'web\\static', 'core.ini', 'web.ini' ]
 
 build_exe_options = { 
     'packages' : ['sqlalchemy.dialects.sqlite'],
