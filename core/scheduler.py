@@ -1,8 +1,6 @@
 from apscheduler.scheduler import Scheduler as ApScheduler
-from core.repositories.shows import ShowRepository
 from core.updater import Updater, UPDATE_ALL
 from core.downloaders import Downloader
-from core.entities.models import EPISODE_STATUS_WANTED
 from core.config import configmanager
 
 sched = ApScheduler()
@@ -15,14 +13,8 @@ def update_and_download():
     updater.update(UPDATE_ALL)
     
     downloader = Downloader()
-    show_repository = ShowRepository()
-    wanted_shows = show_repository.get_wanted_shows()
     print "Downloading..."
-    for show in wanted_shows:
-        wanted_episodes = show.episodes.filter_by(status = \
-            EPISODE_STATUS_WANTED)
-        for episode in wanted_episodes:
-            downloader.download(episode.id)
+    downloader.download_wanted_shows()
     print "Finished..."
 
 class Scheduler(object):

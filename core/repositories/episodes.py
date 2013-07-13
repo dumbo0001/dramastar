@@ -45,7 +45,7 @@ class EpisodeRepository(object):
     def get_active_episode_urls(self, episode_id):
         session = Session()
         episode_urls = session.query(EpisodeUrl)\
-            .filter_by(episode_id = episode_id).join(Provider).filter_by(active = True) \
-            .order_by(Provider.priority).all()
+            .filter_by(episode_id = episode_id).join(Provider).filter_by( \
+            active = True).order_by(Provider.priority).all()
             
         return episode_urls

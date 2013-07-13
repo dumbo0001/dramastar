@@ -20,6 +20,7 @@ class HdZone(BaseProvider):
     
     def __init__(self):
         self.name = 'core.providers.torrent.hdzone'
+        self.order = configmanager.get(self.name, 'order')
         
         self._show_list_parser = ShowListParser( \
             configmanager.get(self.name, 'author'), \
