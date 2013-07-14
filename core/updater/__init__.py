@@ -26,7 +26,7 @@ class Updater(object):
     def _update_shows(self, mode):
         shows_from_db = self._get_shows_from_db()
         for provider in self.providers:            
-            if provider.active:
+            if provider.enabled:
                 shows_from_provider = provider.get_show_list()
                 for provider_show in shows_from_provider:
                     show = None
@@ -39,11 +39,11 @@ class Updater(object):
                         show = shows_from_db[show_name]
                         show.status = show_status
                         provider_url_exists = show.urls \
-                            .filter_by(provider_id = provider.id) \
+                            .filter_by(provider = provider.name) \
                             .count() > 0
                         if not provider_url_exists:
                             db_show_url = ShowUrl(url = provider_show['url'], \
-                                show = show, provider_id = provider.id)
+                                show = show, provider = provider.name)
                             
                     else:
                         # New show
@@ -52,7 +52,7 @@ class Updater(object):
                         show = Show(name = show_name, status = show_status, \
                             created = show_lastmodified)
                         show_url = ShowUrl(url = show_url, show = show, \
-                            provider_id = provider.id)
+                            provider = provider.name)
                         shows_from_db[show.name] = show
                     self.show_repository.save_show(show)
                     if mode == UPDATE_ALL:
@@ -72,7 +72,7 @@ class Updater(object):
     def _get_shows_from_providers(self):
         show_list = []
         for provider_name in self.providers:
-            if self.providers[provider_name].active:
+            if self.providers[provider_name].enabled:
                 show_list = show_list + self.providers[provider_name] \
                     .get_show_list()
         return show_list        
@@ -84,15 +84,15 @@ class Updater(object):
             
             for provider in self.providers:      
                 show_url_exists = show.urls \
-                    .filter_by(provider_id = provider.id).count() > 0
-                if not provider.active or not show_url_exists:
+                    .filter_by(provider = provider.name).count() > 0
+                if not provider.enabled or not show_url_exists:
                     print 'provider %r not activated or no show url' % provider.name
                     continue
                     
                 print 'Updating episodes of provider %r' % provider.name
                     
                 show_url = show.urls \
-                    .filter_by(provider_id = provider.id).first()
+                    .filter_by(provider = provider.name).first()
                     
                 episodes_from_provider = provider.get_episode_list( \
                     show_url.url)
@@ -101,7 +101,7 @@ class Updater(object):
                     episode_number_postfix = provider_episode['number_postfix']
                     episode_airdate = provider_episode['airdate']
                     episode_url = provider_episode['url']
-                    episode_name =provider_episode['name']
+                    episode_name = provider_episode['name']
                     episode = show.episodes \
                         .filter_by(number = episode_number) \
                         .filter_by(number_postfix = episode_number_postfix) \
@@ -114,18 +114,18 @@ class Updater(object):
                             show.id, airdate = episode_airdate, status = \
                             EPISODE_STATUS_WANTED)
                         episode_url = EpisodeUrl(name = episode_name, url = \
-                            episode_url, episode = episode, provider_id = \
-                            provider.id)
+                            episode_url, episode = episode, provider = \
+                            provider.name)
                     else:
                         # Existing episode
                         print 'Updating existing episode %r%r' % (episode_number, episode_number_postfix)
                         provider_url_exists = episode.urls \
-                            .filter_by(provider_id = provider.id) \
+                            .filter_by(provider = provider.name) \
                             .count() > 0
                         if not provider_url_exists:
                             db_episode_url = EpisodeUrl(name = episode_name, \
                                 url = episode_url, episode = episode, \
-                                provider_id = provider.id) 
+                                provider = provider.name) 
                                 
                     self.episode_repository.save_episode(episode)
                     

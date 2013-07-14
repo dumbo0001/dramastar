@@ -1,6 +1,5 @@
    
 class BaseProvider(object):
     name = None
-    id = None
-    active = False,
+    enabled = False,
     order = 99

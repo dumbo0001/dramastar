@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from core.db import Session
 from core.entities.models import Episode, EPISODE_STATUS_WANTED, Show, \
-    Provider, EpisodeUrl
+    EpisodeUrl
 
 class EpisodeRepository(object):
     def get_episodes(self, show = None, order_by = []):
@@ -23,7 +23,6 @@ class EpisodeRepository(object):
         session = Session()
         episodes = session.query(Episode)
         return episodes \
-            .filter_by(status = EPISODE_STATUS_WANTED) \
             .filter(Episode.airdate > (datetime.utcnow() - timedelta(days=5))) \
             .join(Show).filter_by(wanted = True) \
             .order_by(Episode.airdate.desc()).all()

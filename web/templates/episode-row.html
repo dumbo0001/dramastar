@@ -12,6 +12,7 @@
     <td>
         <small>{% if episode.status == 0 %}wanted
         {% elif episode.status == 1 %}ignored
+        {% elif episode.status == 2 %}snatched
         {% else %}
         downloaded
         {% endif %}</small>

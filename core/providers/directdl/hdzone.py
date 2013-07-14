@@ -20,7 +20,8 @@ class HdZone(BaseProvider):
     
     def __init__(self):
         self.name = 'core.providers.directdl.hdzone'
-        self.order = configmanager.get(self.name, 'order')
+        self.enabled = configmanager.getboolean(self.name, 'enabled')
+        self.order = configmanager.getint(self.name, 'order')
     
         self._show_list_parser = ShowListParser( \
             configmanager.get(self.name, 'author'), \

@@ -8,7 +8,9 @@ SHOW_STATUS_CONTINUING = 0
 SHOW_STATUS_ENDED = 1
 EPISODE_STATUS_WANTED = 0
 EPISODE_STATUS_IGNORED = 1 
-EPISODE_STATUS_DOWNLOADED = 2
+EPISODE_STATUS_SNATCHED = 2
+EPISODE_STATUS_DOWNLOADED = 3
+ERROR = -1
 
 Base = declarative_base()
 
@@ -31,8 +33,7 @@ class ShowUrl(Base):
     id = Column(Integer, primary_key = True)
     url = Column(String(2000))
     show_id = Column(Integer, ForeignKey('show.id'))
-    provider_id = Column(Integer, ForeignKey('provider.id'))
-    provider= relationship('Provider')
+    provider = Column(String(256))
     
     def __repr__(self):
         return '<ShowUrl %r>' % (self.url)
@@ -56,39 +57,9 @@ class EpisodeUrl(Base):
     name = Column(String(256))
     url = Column(String(2000))
     episode_id = Column(Integer, ForeignKey('episode.id'))
-    provider_id = Column(Integer, ForeignKey('provider.id'))
-    provider= relationship('Provider')
+    provider = Column(String(256))
     
     def __repr__(self):
         return '<EpisodeUrl %r>' % (self.name)
-        
-provider_downloaders = Table('provider_downloaders', Base.metadata,
-    Column('provider_id', Integer, ForeignKey('provider.id')),
-    Column('downloader_id', Integer, ForeignKey('downloader.id'))
-)
-    
-class Provider(Base):
-    __tablename__ = 'provider'
-    id = Column(Integer, primary_key = True)
-    name = Column(String(256))
-    active = Column(Boolean, default = False)
-    priority = Column(Integer, default = 99)
-    downloaders = relationship('Downloader', \
-        secondary = provider_downloaders, backref='provider', lazy='dynamic')
-    
-    def __repr__(self):
-        return '<Provider %r>' % (self.name)
-
-class Downloader(Base):
-    __tablename__ = 'downloader'
-    id = Column(Integer, primary_key = True)
-    name = Column(String(256))
-    active = Column(Boolean, default = False)
-    priority = Column(Integer, default = 99)
-    providers = relationship('Provider', \
-        secondary = provider_downloaders, backref='downloader', lazy='dynamic')
-    
-    def __repr__(self):
-        return '<Downloader %r>' % (self.name)
 
 Base.metadata.create_all(engine)

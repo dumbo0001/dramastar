@@ -84,7 +84,7 @@ class Show:
         
     def download(self, episode_id):
         downloader = Downloader()
-        downloader.download(episode_id)
+        downloader.download_episode(episode_id)
         episode = self.episode_repository.get_episode(episode_id)
         return json.dumps({
                 'html' : render_template('episode-row.html', episode = episode)
