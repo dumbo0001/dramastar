@@ -21,9 +21,12 @@ class DramastarServer:
         }
         
     def start(self):
-        cherrypy.config["tools.encode.on"] = True
-        cherrypy.config["tools.encode.encoding"] = "utf-8"
-        cherrypy.config["tools.sessions.on"] = True
+        cherrypy.config['tools.encode.on'] = True
+        cherrypy.config['tools.encode.encoding'] = 'utf-8'
+        cherrypy.config['tools.sessions.on'] = True
+        cherrypy.config['server.environment'] = 'production'
+        cherrypy.config['engine.autoreload_on'] = True
+        cherrypy.config['engine.autoreload_frequency'] = 5
         
         configfile = get_absolute_path('web.ini')
         cherrypy.config.update(configfile)
@@ -31,11 +34,15 @@ class DramastarServer:
         
         app = cherrypy.tree.mount(root = None, config = configfile)
         app.merge(self.config)
+        
+        cherrypy.engine.autoreload.files.add(get_absolute_path('core.ini'))
         cherrypy.engine.start()
         
         # Start snatch scheduler
         scheduler = Scheduler()
         scheduler.start()
+        
+        cherrypy.engine.block()
 
     def setup_routes(self):
         root = Root()
