@@ -35,7 +35,7 @@ class Downloader(object):
     def download_wanted_shows(self):        
         wanted_shows = self.show_repository.get_wanted_shows()
         
-        if wanted_shows.count() == 0:
+        if len(wanted_shows) == 0:
             print 'No wanted shows'
             
         for show in wanted_shows:
@@ -54,7 +54,7 @@ class Downloader(object):
             EPISODE_STATUS_WANTED)
             
         for episode in wanted_episodes:
-            self.download_episode(wanted_episode.id)
+            self.download_episode(episode.id)
             
     def download_episode(self, episode_id):
         success = False
