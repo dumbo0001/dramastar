@@ -8,7 +8,7 @@ from core.config import configmanager
 
 class HdZone(BaseProvider):
     _show_list_url = 'http://www.hdzone.org/forumdisplay.php?fid=134'  
-    _show_name_regex = u'(?P<title>.+?)\sCH\s\d{2,3}\s-\sCH\s\d{2,3}' + \
+    _show_name_regex = u'(?P<title>.+?)\sCH\s\d{2,3}(\s-\sCH\s\d{2,3})?' + \
         u'([AB])?\s(大結局|全集完)?'
     _show_ended_regex = u'(?P<ended>大結局|全集完)'
     _episode_regex = u'^.+\sCH\s(?P<number>\d+)(\s?end)?(?P<number_postfix>[AB' + \
