@@ -15,47 +15,65 @@ class JDownloader(BaseDownloader):
         self.use_for = configmanager.get(self.name, 'use_for').split(',')
         self.ignore_hosts = configmanager.getlist(self.name, 'ignore_hosts')
     
-    def download(self, filedata, filename):
-        print 'Start snatching %r to JDownloader... ' % filename   
+    def download(self, filedata, filename, additional_arguments):
+        print 'Start snatching episode %r of %r to JDownloader... ' % \
+            (additional_arguments, filename)
         return_status = ERROR
         snatched = False        
         
-        links = self._get_downloadlinks(filedata)
-        links_domain_list = [self._get_domain(link) for link in links]
+        links = self._get_downloadlinks(filedata, additional_arguments)
         
-        if all(link_domain in self.snatched_domains for link_domain in \
-            links_domain_list):
-            # All domains of links already snatched.
-            # Remove in snatched domains list to be able to snatch again
-            for link_domain in links_domain_list:
-                self.snatched_domains.remove(link_domain)
+        if len(links) > 0:
+            links_domain_list = [self._get_domain(link) for link in links]
+            
+            if all(link_domain in self.snatched_domains for link_domain in \
+                links_domain_list):
+                # All domains of links already snatched.
+                # Remove in snatched domains list to be able to snatch again
+                for link_domain in links_domain_list:
+                    self.snatched_domains.remove(link_domain)
 
-        # Snatch a link
-        for link in links:
-            domain = self._get_domain(link)            
-            if not snatched and domain not in self.snatched_domains:
-                snatched = self._snatch(link)                
-                self.snatched_domains.append(domain)
-                break
-        
-        if snatched:
-            return_status = EPISODE_STATUS_SNATCHED
-            print 'Snatched %r' % filename
+            # Snatch a link
+            for link in links:
+                domain = self._get_domain(link)            
+                if not snatched and domain not in self.snatched_domains:
+                    snatched = self._snatch(link)                
+                    self.snatched_domains.append(domain)
+                    break
+            
+            if snatched:
+                return_status = EPISODE_STATUS_SNATCHED
+                print 'Snatched %r' % filename
+        else:
+            print 'No valid links in file data'
             
         return return_status
         
-    def _get_downloadlinks(self, filedata):
-        links = re.findall('(?P<url>https?://[^\s]+)', filedata)        
+    def _get_downloadlinks(self, filedata, episode_number):
+        links = re.findall( \
+            '(?P<url>https?://[^\s]+)', filedata)        
         links = [link for link in links if self._get_domain(link) not in \
-            self.ignore_hosts]
+            self.ignore_hosts and self._is_link_of_episode_number(link, \
+            episode_number)]
         
         return links
         
-    def _get_domain(self, link):          
+    def _get_domain(self, link):
         regex = re.compile('https?://(?P<domain>[^\s]+?)/')
         domain = regex.match(link).group('domain')
         
         return domain
+        
+    def _is_link_of_episode_number(self, link, episode_number):
+        is_same = False
+        regex = re.compile('https?://[^\s]+?(?P<number>\d+)\..+\.html')
+        match = regex.match(link)
+        if match:
+            number = -1 if match.group('number') == None else \
+                int(float(match.group('number')))
+            is_same = episode_number == number
+                
+        return is_same
         
     def _snatch(self, link):
         snatched = False

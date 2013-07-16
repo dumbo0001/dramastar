@@ -15,7 +15,7 @@
     <td>{{ show.name }}</td>
     <td>
         {% if show.episodes.count() > 0 %}
-        <small>{{ show.episodes.filter_by(status = 1).count() + show.episodes.filter_by(status = 2).count() }}/{{ show.episodes.count() }}
+        <small>{{ show.episodes.filter_by(status = 1).count() + show.episodes.filter_by(status = 2).count() + show.episodes.filter_by(status = 3).count()}}/{{ show.episodes.count() }}
         </small>
         {% endif %}
     </td>

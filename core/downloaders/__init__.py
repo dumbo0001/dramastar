@@ -85,7 +85,8 @@ class Downloader(object):
             
                 # TODO Add retry mechanism and skip to next downloader
                 filedata = provider.get_filedata(episode_url.url)
-                episode_status = downloader.download(filedata, episode_url.name)
+                episode_status = downloader.download(filedata, \
+                    episode_url.name, episode.number)
                 break
                 
             if episode_status == EPISODE_STATUS_SNATCHED or episode_status == \

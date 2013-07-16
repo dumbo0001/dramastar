@@ -107,17 +107,20 @@ class EpisodeListParser():
                 if match:
                     name = self._parse_name(div_tag)
                     number = int(float(match.group('number')))
+                    number_end = number if match.group('number_end') == None \
+                        else int(float(match.group('number_end')))
                     number_postfix = match.group('number_postfix') or ''
                     airdate = self._parse_airdate(div_tag)
                     aid = self._parse_aid(div_tag)
                     url = self.DOWNLOAD_URL_FORMAT % aid
-                    episodes.append({
-                        'name': name,
-                        'url': url,
-                        'number' : number,
-                        'number_postfix' : number_postfix,
-                        'airdate' : airdate
-                    })
+                    for num in range(number, number_end + 1):
+                        episodes.append({
+                            'name': name,
+                            'url': url,
+                            'number' : num,
+                            'number_postfix' : number_postfix,
+                            'airdate' : airdate
+                        })
             except AttributeError:
                 continue
         

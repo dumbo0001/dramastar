@@ -10,7 +10,7 @@ class BlackHole(BaseDownloader):
         self.enabled = configmanager.getboolean(self.name, 'enabled')
         self.use_for = configmanager.get(self.name, 'use_for').split(',')
     
-    def download(self, filedata, filename):
+    def download(self, filedata, filename, additional_arguments):
         print 'Start BlackHole download %r... ' % filename
         return_status = ERROR
         directory = configmanager.get(self.name, 'directory')

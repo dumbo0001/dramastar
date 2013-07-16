@@ -11,7 +11,7 @@ class HdZone(BaseProvider):
     _show_name_regex = u'(?P<title>.+?)\sCH\s\d{2,3}(\s-\sCH\s\d{2,3})?' + \
         u'([AB])?\s(大結局|全集完)?'
     _show_ended_regex = u'(?P<ended>大結局|全集完)'
-    _episode_regex = u'^.+\sCH\s(?P<number>\d+)(\s?end)?(?P<number_postfix>[AB' + \
+    _episode_regex = u'^.+?\sCH\s(?P<number>\d+)(\s-\sCH\s(?P<number_end>\d+))?(\s?end)?(?P<number_postfix>[AB' + \
         '])?\.(?P<extension>.+)$'
         
     _authenticated_request = None
