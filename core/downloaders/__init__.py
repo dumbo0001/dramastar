@@ -1,3 +1,4 @@
+import logging
 from core import container
 from core.entities.models import EPISODE_STATUS_SNATCHED, \
     EPISODE_STATUS_WANTED, EPISODE_STATUS_DOWNLOADED
@@ -7,20 +8,22 @@ from core.providers import get_providers
 from core.repositories.episodes import EpisodeRepository
 from core.repositories.shows import ShowRepository
 
+log = logging.getLogger(__name__)
+
 container.downloaders = None
 
 def get_downloaders():
     if container.downloaders == None:
-        print 'Loading downloaders...'
         _load_downloaders()
-    print 'Finished loading downloaders...'
     return container.downloaders
 
 def _load_downloaders():
+    log.info('Loading downloaders...')
     # TODO load downloader modules
     loaded_downloaders = [ BlackHole(), JDownloader()]
     
     container.downloaders = loaded_downloaders 
+    log.info('Finished loading downloaders...')
     
 class Downloader(object):    
     downloaders = []
@@ -32,56 +35,73 @@ class Downloader(object):
         self.downloaders = get_downloaders()
         self.providers = get_providers()
         
-    def download_wanted_shows(self):        
+    def download_wanted_shows(self):
         wanted_shows = self.show_repository.get_wanted_shows()
         
         if len(wanted_shows) == 0:
-            print 'No wanted shows'
+            log.info('Nothing to download. No wanted shows...')
+            pass
             
+        log.info('Downloading wanted shows...')
         for show in wanted_shows:
             self.download_show(show.id)
+        log.info('Finished downloading wanted shows...')
         
     def download_show(self, show_id):
         show = self.show_repository.get_show(show_id)
         
         if show == None:
-            print 'Show %r does not exist' % show_id
+            log.info('Show %r not found...' % show_id)
+            pass
         
         if not show.wanted:
-            print 'Show %r not in wanted list' % show_id
+            log.info('Show %s not in wanted list' % show.name)
+            pass
             
         wanted_episodes = show.episodes.filter_by(status = \
             EPISODE_STATUS_WANTED)
             
+        log.info('Downloading wanted episodes...')
         for episode in wanted_episodes:
             self.download_episode(episode.id)
+        log.info('Finished downloading wanted episodes...')
             
     def download_episode(self, episode_id):
         success = False
         episode = self.episode_repository.get_episode(episode_id)
         
         if episode == None:
-            print 'Episode %r does not exists' % episode_id
+            log.info('Episode %r not found' % episode_id)
+            pass
             
+        log.info('Downloading %s episode %r%s' % (episode.show.name, \
+            episode.number, episode.number_postfix))
         episode_urls = self._get_sorted_urls(episode.urls)
         for episode_url in episode_urls:
-            print 'Downloading %r of %r' % (episode_url.url, episode_url.provider)
             provider_name = episode_url.provider
                 
             if not any(x.name == provider_name for x in self.providers):
-                print 'Provider %r not loaded' % provider_name
+                log.info('Provider %r not loaded for episode. Skipping...' % \
+                    provider_name)
                 continue
-            
-            provider = next(x for x in self.providers if x.name == provider_name)
+                
+            provider = next(x for x in self.providers if x.name == \
+                provider_name)
                 
             for downloader in self.downloaders:
                 if not downloader.enabled:
-                    print 'Downloader %r not enabled' % downloader.name
+                    log.info('Downloader %s not enabled. Skipping...' % \
+                        downloader.name)
                     continue
                 
                 if not any(x in provider_name for x in downloader.use_for):
-                    print 'Downloader %r not in use for provider %r' % (downloader.name, provider_name)
+                    log.info('Downloader %s not in use for provider %s. ' + \
+                        'Skipping...' % (downloader.name, provider_name))
                     continue
+                
+                log.info('Downloading using %s' % episode_url.provider)
+                log.info('Getting file data of provider %s from %s' % \
+                    (episode_url.provider, episode_url.url) )
             
                 # TODO Add retry mechanism and skip to next downloader
                 filedata = provider.get_filedata(episode_url.url)
@@ -95,6 +115,7 @@ class Downloader(object):
                 episode.status = episode_status
                 self.episode_repository.save_episode(episode)
                 succes = True
+                log.info('Episode succesfully snatched/downloaded...')
                 break
         
         return success

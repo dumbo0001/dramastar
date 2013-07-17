@@ -1,10 +1,13 @@
 ﻿ # -*- coding: utf-8 -*-
+import logging
 from core.providers.base import BaseProvider
 from core.providers.parsers.hdzone import ShowListParser, \
     EpisodeListParser
 from core.request.authenticated import AuthenticatedWebRequest, \
     AuthenticatedByCookies
 from core.config import configmanager
+
+log = logging.getLogger(__name__)
 
 class HdZone(BaseProvider):
     _show_list_url = 'http://www.hdzone.org/forumdisplay.php?fid=134'  
@@ -40,11 +43,13 @@ class HdZone(BaseProvider):
             login_url, login_params, authenticated_checker)
         
     def get_show_list(self):
+        log.info('Retrieving show list of provider %s' % self.name)
         html = self._authenticated_request.get_html_response(self._show_list_url)
         
         return self._show_list_parser.parse_shows(html)
         
     def get_episode_list(self, url):
+        log.info('Retrieving episode list of provider %s' % self.name)
         html = self._authenticated_request.get_html_response(url)
         
         return self._episode_list_parser.parse_episode_list(html)

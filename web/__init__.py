@@ -1,8 +1,11 @@
 import cherrypy
+import logging
 from root import Root
 from show import Show
 from tools.common import get_absolute_path
 from core.scheduler import Scheduler
+
+log = logging.getLogger(__name__)
 
 class DramastarServer:
     config = None
@@ -37,6 +40,7 @@ class DramastarServer:
         
         cherrypy.engine.autoreload.files.add(get_absolute_path('core.ini'))
         cherrypy.engine.start()
+        log.info('Server started...')
         
         # Start snatch scheduler
         scheduler = Scheduler()

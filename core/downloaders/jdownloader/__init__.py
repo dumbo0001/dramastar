@@ -1,9 +1,12 @@
+import logging
 import re
 import urllib2
 import traceback
 from core.downloaders.base import BaseDownloader
 from core.config import configmanager
 from core.entities.models import ERROR, EPISODE_STATUS_SNATCHED
+
+log = logging.getLogger(__name__)
 
 class JDownloader(BaseDownloader):  
     ignore_hosts = []
@@ -16,12 +19,13 @@ class JDownloader(BaseDownloader):
         self.ignore_hosts = configmanager.getlist(self.name, 'ignore_hosts')
     
     def download(self, filedata, filename, additional_arguments):
-        print 'Start snatching episode %r of %r to JDownloader... ' % \
-            (additional_arguments, filename)
+        log.info('Start snatching episode %r in %s with %s...' % \
+            (additional_arguments, filename, self.name))
         return_status = ERROR
         snatched = False        
         
         links = self._get_downloadlinks(filedata, additional_arguments)
+        log.info('Found %d links in file' % len(links))
         
         if len(links) > 0:
             links_domain_list = [self._get_domain(link) for link in links]
@@ -30,6 +34,8 @@ class JDownloader(BaseDownloader):
                 links_domain_list):
                 # All domains of links already snatched.
                 # Remove in snatched domains list to be able to snatch again
+                log.debug('All domains of links snatched recently. Remove ' + \
+                    'domains from snatch list...')
                 for link_domain in links_domain_list:
                     self.snatched_domains.remove(link_domain)
 
@@ -37,16 +43,17 @@ class JDownloader(BaseDownloader):
             for link in links:
                 domain = self._get_domain(link)            
                 if not snatched and domain not in self.snatched_domains:
-                    snatched = self._snatch(link)                
-                    self.snatched_domains.append(domain)
-                    break
-            
-            if snatched:
-                return_status = EPISODE_STATUS_SNATCHED
-                print 'Snatched %r' % filename
+                    snatched = self._snatch(link)                    
+                    if snatched:
+                        log.info('Snatched %r...' % link)
+                        self.snatched_domains.append(domain)
+                        return_status = EPISODE_STATUS_SNATCHED
+                        break
+                    else:
+                        log.info('Not snatched %r...' % link)
         else:
-            print 'No valid links in file data'
-            
+            log.info('No links to snatch...')
+        
         return return_status
         
     def _get_downloadlinks(self, filedata, episode_number):
@@ -83,9 +90,10 @@ class JDownloader(BaseDownloader):
                 link)
             snatch_response = response.read()
             snatched = snatch_response == 'Link(s) added. ("' + link + '"\r\n)'
-        except:
-            print 'Failed to grab file to JDownloader %r: %r', (link, \
-                traceback.format_exc())
+            log.debug(snatch_response)
+        except Exception, e:
+            log.warning('Failed to grab file to JDownloader %s: %r' % (link, \
+                traceback.format_exc()))
             snatched = False
         
         return snatched

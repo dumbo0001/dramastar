@@ -1,9 +1,11 @@
+import logging
+import logging.config
 import sys
-import logging 
-
+from tools.common import get_absolute_path
 from web import DramastarServer
 
-log = logging.getLogger(__name__)
+logging.config.fileConfig(get_absolute_path('core.ini'), disable_existing_loggers=False)
+log = logging.getLogger('dramastar')
 
 def main():
     try:
