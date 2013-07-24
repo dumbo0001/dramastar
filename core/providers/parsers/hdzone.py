@@ -107,7 +107,9 @@ class EpisodeListParser():
                 if match:
                     name = self._parse_name(div_tag)
                     number = int(float(match.group('number')))
-                    number_end = number if match.group('number_end') == None \
+                    number_end = number if \
+                        'number_end' not in match.groupdict() \
+                        or match.group('number_end') == None \
                         else int(float(match.group('number_end')))
                     number_postfix = match.group('number_postfix') or ''
                     airdate = self._parse_airdate(div_tag)
