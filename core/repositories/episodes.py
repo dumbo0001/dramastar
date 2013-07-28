@@ -23,7 +23,7 @@ class EpisodeRepository(object):
         session = Session()
         episodes = session.query(Episode)
         return episodes \
-            .filter(Episode.airdate > (datetime.utcnow() - timedelta(days=5))) \
+            .filter(Episode.airdate > (datetime.utcnow() - timedelta(days=3))) \
             .join(Show).filter_by(wanted = True) \
             .order_by(Episode.airdate.desc()).all()
     
