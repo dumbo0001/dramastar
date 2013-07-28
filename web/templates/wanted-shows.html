@@ -1,16 +1,18 @@
 <table id="wanted-shows" class="table table-hover table-condensed">
     <thead>
         <tr>
-            <th colspan="4">
+            <th colspan="2">
                 Wanted shows
+            </th>
+            <th colspan="2" class="visible-lg">
             </th>
         </tr>
         {% if wanted %}  
         <tr>
-            <th>&nbsp;</th>
+            <th class="actions">&nbsp;</th>
             <th>Show</th>
-            <th>Downloads</th>
-            <th>Status</th>
+            <th class="hidden-sm">Downloads</th>
+            <th class="hidden-sm">Status</th>
         </tr>
         {% endif %}
     </thead>

@@ -1,22 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid">
-    <div class="row-fluid">
-        <div class="span5">
-            <div class="row-fluid">
-                <div class="span12">
-                    {% include 'episodes.html' %}
-                </div>
-            </div>
-            <div class="row-fluid">
-                <div class="span12">
-                    {% include 'new-shows.html' %}
-                </div>
-            </div>
-        </div>
-        <div class="span5">
-            {% include 'wanted-shows.html' %}
-        </div>
+<div class="container">
+    <div class="row">
+        <div class="col-lg-6">{% include 'episodes.html' %}</div>
+        <div class="col-lg-6">{% include 'wanted-shows.html' %}</div>
+    </div>
+    <div class="row">
+        <div class="col-lg-6">{% include 'new-shows.html' %}</div>
     </div>
 </div>
 {% endblock %}	
