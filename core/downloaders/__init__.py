@@ -95,8 +95,8 @@ class Downloader(object):
                     continue
                 
                 if not any(x in provider_name for x in downloader.use_for):
-                    log.info('Downloader %s not in use for provider %s. ' + \
-                        'Skipping...' % (downloader.name, provider_name))
+                    log.info('Downloader %s not in use ' % downloader.name + \
+                        'for provider %s. Skipping...' %  provider_name)
                     continue
                 
                 log.info('Downloading using %s' % episode_url.provider)

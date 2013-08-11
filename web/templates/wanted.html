@@ -1,12 +1,12 @@
 <tr>
     <td>
         <div class="btn-group">
-            <a href="/show/{{show.id}}" class="btn">
+            <a href="/show/{{show.id}}" class="btn" title="view show">
                 <i class="icon-pencil"></i></a>
-            <a href="/show/{{show.id}}/unwant" 
+            <a href="/show/{{show.id}}/unwant" title="unwant"
                 class="btn ajax" data-method="post">
                 <i class="icon-trash"></i></a>
-            <a href="/update/{{show.id}}" 
+            <a href="/update/{{show.id}}" title="refresh show"
                 class="btn ajax" data-method="post" data-replace-closest="tr"
                 data-refresh="#episodes-list">
                 <i class="icon-refresh"></i></a>

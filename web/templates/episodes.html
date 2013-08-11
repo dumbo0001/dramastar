@@ -11,8 +11,13 @@
                 {% if episode_list.mode == 'all' %}
                 <a href="/update/{{episode_list.show_id}}"
                     class="btn btn-small ajax" data-method="post" 
-                    data-refresh="#episodes-list">
+                    data-refresh="#episodes-list" title="refresh episode list">
                     <i class="icon-refresh"></i></a>
+                {% else %}
+                <a href="/shows/wanted/download" 
+                    class="btn btn-small ajax" data-method="post" 
+                    title="download episodes">
+                    <i class="icon-download-alt"></i></a>
                 {% endif %}
             </th>
         </tr>

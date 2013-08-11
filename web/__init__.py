@@ -61,6 +61,8 @@ class DramastarServer:
             action = 'settings')
         route_mapper.connect('update', '/update', controller = show, \
             action = 'update')
+        route_mapper.connect('update', '/update/wanted', controller = show, \
+            action = 'update_wanted')
         route_mapper.connect('update', R'/update/{show_id:\d+}', 
             controller = show, action = 'update')
         route_mapper.connect('show', R'/show/{show_id:\d+}', 
@@ -75,5 +77,7 @@ class DramastarServer:
             controller = show, action = 'latest_episodes')
         route_mapper.connect('download', R'/episode/{episode_id:\d+}/download', 
             controller = show, action = 'download')
+        route_mapper.connect('download', '/shows/wanted/download', \
+            controller = show, action = 'download_wanted_shows')
             
         return route_mapper
