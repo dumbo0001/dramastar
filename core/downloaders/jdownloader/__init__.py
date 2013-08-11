@@ -73,7 +73,7 @@ class JDownloader(BaseDownloader):
         
     def _is_link_of_episode_number(self, link, episode_number):
         is_same = False
-        regex = re.compile('https?://[^\s]+?(?P<number>\d+)\..+\.html')
+        regex = re.compile('https?://[^\s]+?(?P<number>\d+)(-End)?\..+\.html')
         match = regex.match(link)
         if match:
             number = -1 if match.group('number') == None else \
