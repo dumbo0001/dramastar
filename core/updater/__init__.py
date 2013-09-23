@@ -50,7 +50,7 @@ class Updater(object):
                             .filter_by(provider = provider.name) \
                             .count() > 0
                         if not provider_url_exists:
-                            log.info('Adding new show url to show...' % \
+                            log.info('Adding new show url to show %s...' % \
                                 show_name)
                             db_show_url = ShowUrl(url = provider_show['url'], \
                                 show = show, provider = provider.name)
