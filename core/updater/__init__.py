@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 from core.entities.models import Show, Episode, SHOW_STATUS_CONTINUING, \
-    ShowUrl, EPISODE_STATUS_WANTED, EpisodeUrl
+    ShowUrl, EPISODE_STATUS_WANTED, EPISODE_STATUS_IGNORED, EpisodeUrl
 from core.providers import get_providers
 from core.repositories.shows import ShowRepository
 from core.repositories.episodes import EpisodeRepository
@@ -47,7 +47,8 @@ class Updater(object):
                         show = shows_from_db[show_name]
                         show.status = show_status
                         provider_url_exists = show.urls \
-                            .filter_by(provider = provider.name) \
+                            .filter_by(provider = provider.name, \
+                                url = provider_show['url']) \
                             .count() > 0
                         if not provider_url_exists:
                             log.info('Adding new show url to show %s...' % \
@@ -105,54 +106,64 @@ class Updater(object):
                     continue
                     
                 log.info('Updating episodes of provider %s' % provider.name)
-                    
-                show_url = show.urls \
-                    .filter_by(provider = provider.name).first()
-                    
-                episodes_from_provider = provider.get_episode_list( \
-                    show_url.url)
-                log.info('Found %d episodes' % len(episodes_from_provider))
-                log.info('Updating...')
-                for provider_episode in episodes_from_provider:
-                    episode_number = provider_episode['number']
-                    episode_number_postfix = provider_episode['number_postfix']
-                    episode_airdate = provider_episode['airdate']
-                    episode_url = provider_episode['url']
-                    episode_name = provider_episode['name']
-                    episode = show.episodes \
-                        .filter_by(number = episode_number) \
-                        .filter_by(number_postfix = episode_number_postfix) \
-                        .first()
-                    if episode == None:
-                        # New episode
-                        log.info('Episode %r%s not found. Adding...' % \
-                            (episode_number, episode_number_postfix))
-                        episode = Episode(number = episode_number, \
-                            number_postfix = episode_number_postfix,show_id = \
-                            show.id, airdate = episode_airdate, status = \
-                            EPISODE_STATUS_WANTED)
-                        episode_url = EpisodeUrl(name = episode_name, url = \
-                            episode_url, episode = episode, provider = \
-                            provider.name)
-                    else:
-                        # Existing episode
-                        log.debug('Episode %r%s exists. Updating...' % (\
-                            episode_number, episode_number_postfix))
-                        provider_url_exists = episode.urls \
-                            .filter_by(provider = provider.name) \
-                            .count() > 0
-                        if not provider_url_exists:
-                            log.info('Adding new episode url to episode...' % \
-                                episode_name)
-                            db_episode_url = EpisodeUrl(name = episode_name, \
-                                url = episode_url, episode = episode, \
-                                provider = provider.name)
-                        else:
-                            log.debug('Nothing to update...')
-                                
-                    self.episode_repository.save_episode(episode)
+                
+                show_urls = show.urls.filter_by(provider = provider.name)
+                for show_url in show_urls:
+                    self._update_episodes_from_show_url(show_url, show, \
+                        provider)
                 
             log.info('Finished updating episodes of show %s' % show.name)
         else:
             log.debug('No episodes to update for show %s.' % show.name + \
                 'Show not wanted or already completed....' )
+                
+    def _update_episodes_from_show_url(self, show_url, show, provider):           
+        episodes_from_provider = provider.get_episode_list( \
+            show_url.url)
+        log.info('Found %d episodes' % len(episodes_from_provider))
+        log.info('Updating...')
+        for provider_episode in episodes_from_provider:
+            episode_number = provider_episode['number']
+            episode_number_postfix = provider_episode['number_postfix']
+            episode_airdate = provider_episode['airdate']
+            episode_url = provider_episode['url']
+            episode_name = provider_episode['name']
+            episode = show.episodes \
+                .filter_by(number = episode_number) \
+                .filter_by(number_postfix = episode_number_postfix) \
+                .first()
+            if episode == None:
+                # New episode
+                log.info('Episode %r%s not found. Adding...' % \
+                    (episode_number, episode_number_postfix))
+                                        
+                episode = Episode(number = episode_number, \
+                    number_postfix = episode_number_postfix,show_id = \
+                    show.id, airdate = episode_airdate, status = \
+                    EPISODE_STATUS_WANTED)
+                
+                if episode_airdate < show.created:
+                    log.debug('Episode is older than show created date. ' + \
+                        'Setting status to IGNORED')
+                    episode.status = EPISODE_STATUS_IGNORED
+                    
+                episode_url = EpisodeUrl(name = episode_name, url = \
+                    episode_url, episode = episode, provider = \
+                    provider.name)
+            else:
+                # Existing episode
+                log.debug('Episode %r%s exists. Updating...' % (\
+                    episode_number, episode_number_postfix))
+                provider_url_exists = episode.urls \
+                    .filter_by(provider = provider.name) \
+                    .count() > 0
+                if not provider_url_exists:
+                    log.info('Adding new episode url to episode...' % \
+                        episode_name)
+                    db_episode_url = EpisodeUrl(name = episode_name, \
+                        url = episode_url, episode = episode, \
+                        provider = provider.name)
+                else:
+                    log.debug('Nothing to update...')
+                        
+            self.episode_repository.save_episode(episode)
