@@ -1,4 +1,5 @@
 import logging
+import os 
 import re
 import urllib2
 import traceback
@@ -11,14 +12,23 @@ log = logging.getLogger(__name__)
 class JDownloader(BaseDownloader):  
     ignore_hosts = []
     snatched_domains = []
+    backup_enabled = False
+    backup_directory = None
     
     def __init__(self):    
         self.name = 'core.downloaders.jdownloader'
         self.enabled = configmanager.getboolean(self.name, 'enabled')
         self.use_for = configmanager.get(self.name, 'use_for').split(',')
         self.ignore_hosts = configmanager.getlist(self.name, 'ignore_hosts')
+        self.backup_enabled = configmanager.getboolean(self.name, \
+            'backup_enabled')
+        self.backup_directory = configmanager.get(self.name, \
+            'backup_directory')
     
     def download(self, filedata, filename, additional_arguments):
+        if self.backup_enabled:
+            self._backup(filedata, filename, self.backup_directory)
+            
         log.info('Start snatching episode %r in %s with %s...' % \
             (additional_arguments, filename, self.name))
         return_status = ERROR
@@ -55,6 +65,20 @@ class JDownloader(BaseDownloader):
             log.info('No links to snatch...')
         
         return return_status
+        
+    def _backup(self, filedata, filename, directory):
+        if not directory or not os.path.isdir(directory):
+            log.warning('No backup directory configured...')
+        else:
+            try:
+                fullPath = os.path.join(directory, filename)
+                
+                log.info('Backed up to %r.' % fullPath)
+                with open(fullPath, 'wb') as f:
+                    f.write(filedata)
+            except:
+                log.warning('Backup of %s failed: %r', (filename, \
+                    traceback.format_exc()))
         
     def _get_downloadlinks(self, filedata, episode_number):
         links = re.findall( \
